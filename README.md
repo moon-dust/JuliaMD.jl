@@ -31,8 +31,8 @@ addInteraction!(uc, b1, b1, J3, (2, 0))
 addInteraction!(uc, b1, b1, J3, (0, 2)) 
 ```
 
-## Monte Carlo simulations including the MD calculations
-Compared to [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl), additional parameters are introduced to the *Lattice* function for convenience, including *calcLim*, *parmDyn*, *chirality*, *spinsAvg*, and *spinType*. Among them, *parmDyn* is directly related to the MD calculations. This is an object parameter composed of *calcDyn (boolean)*, *disorder (boolean)*, *tau* (step length for time evolution), *nstep* (number of steps), *dynLim* (limit for the MD calculations).
+## Monte Carlo and MD calculations
+Compared to [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl), additional parameters are introduced to the *Lattice* function for convenience, including *calcLim*, *parmDyn*, *chirality*, *spinsAvg*, and *spinType*. Among them, *parmDyn* is directly related to the MD calculations. This is an object composed of *calcDyn (boolean)*, *disorder (boolean)*, *tau* (step length for time evolution), *nstep* (number of steps), *dynLim* (limit for the MD calculations).
 
 ```julia
 # superlattice size
@@ -59,6 +59,7 @@ spinsAvg = false
 lattice = Lattice(uc, L, calcLim, parmDyn, chirality, spinsAvg, spinType)
 m = MonteCarlo(lattice, beta, thermalizationSweeps, measurementSweeps)
 run!(m)
+
 ```
 
 ## Define interpolation functions on the FFTW grid
