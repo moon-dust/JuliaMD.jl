@@ -8,7 +8,7 @@ To install JuliaMD.jl, type the following command in the Julia REPL:
 ```
 
 ## Model definition
-Like that in [JuliaSCGA.jl](https://github.com/moon-dust/JuliaMD.jl), the definition of the spin model inherits from [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl). As shown in the example, the *J<sub>1</sub>-J<sub>2</sub>-J<sub>3</sub>* model on a square lattice can be defined as:
+Like that in [JuliaSCGA.jl](https://github.com/moon-dust/JuliaMD.jl), JuliaMD follows the script structure, including the definition of the spin model, of [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl). As shown in the example script, the *J<sub>1</sub>-J<sub>2</sub>-J<sub>3</sub>* model on a square lattice can be defined as:
 
 ```julia
 # square cell
@@ -19,7 +19,7 @@ uc = UnitCell(a1,a2)
 b1 = addBasisSite!(uc, (0.0000, 0.0000)) 
 
 scaleJ = 5
-J1 = [-1.00 -0.00 -0.00; -0.00 -1.00 -0.00; -0.00 -0.00 -1.00]*scaleJ
+J1 = [-1.00 0.00 0.00; 0.00 -1.00 0.00; 0.00 0.00 -1.00]*scaleJ
 J2 = [0.50 0.00 0.00; 0.00 0.50 0.00; 0.00 0.00 0.50]*scaleJ
 J3 = [0.25 0.00 0.00; 0.00 0.25 0.00; 0.00 0.00 0.25]*scaleJ
 
