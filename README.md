@@ -8,7 +8,7 @@ To install JuliaMD.jl, type the following command in the Julia REPL:
 ```
 
 ## Model definition
-Like [JuliaSCGA.jl](https://github.com/moon-dust/JuliaMD.jl), the definition of the spin model inherits from [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl). As shown in the example, the *J<sub>1</sub>-J<sub>2</sub>-J<sub>3</sub>* model on a square lattice can be defined as:
+Like that in [JuliaSCGA.jl](https://github.com/moon-dust/JuliaMD.jl), the definition of the spin model inherits from [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl). As shown in the example, the *J<sub>1</sub>-J<sub>2</sub>-J<sub>3</sub>* model on a square lattice can be defined as:
 
 ```julia
 # square cell
@@ -31,3 +31,32 @@ addInteraction!(uc, b1, b1, J3, (2, 0))
 addInteraction!(uc, b1, b1, J3, (0, 2)) 
 ```
 
+## Monte Carlo simulations including the MD calculations
+Classical Monte Carlo simulations follow the steps in [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl). Additional parameters are introduced to the *Lattice* function for convenience, including *calcLim*, *parmDyn*, *chirality*, *spinsAvg*, and *spinType*. Among them, *parmDyn* is directly related to the MD calculations. This is an object parameter composed of *calcDyn (boolean)*, *disorder (boolean)*, *\tau* (step length for time evolution), *nstep* (number of steps), *dynLim* (limit for the MD calculations)
+
+```julia
+# superlattice size
+L = (40, 40)
+calcLim = (0, 0, 0) # (0, 0, 0) for no structure factor calculation
+
+thermalizationSweeps = 50000
+measurementSweeps = 1990 # calcDyn per 100 sweeps
+
+# define the temperature parameter
+beta = 2.0
+
+spinType="Heisenberg"
+
+calcDyn = true
+disorder = false
+tau=0.1
+nstep= 401
+dynLim = (1, 1, 1)
+parmDyn = DynParm(calcDyn, disorder, tau, nstep, dynLim)
+
+chirality = false
+spinsAvg = false
+lattice = Lattice(uc, L, calcLim, parmDyn, chirality, spinsAvg, spinType)
+m = MonteCarlo(lattice, beta, thermalizationSweeps, measurementSweeps)
+run!(m)
+```

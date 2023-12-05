@@ -11,7 +11,7 @@ uc = UnitCell(a1,a2)
 b1 = addBasisSite!(uc, (0.0000, 0.0000)) 
 
 scaleJ = 5
-J1 = [-1.00 -0.00 -0.00; -0.00 -1.00 -0.00; -0.00 -0.00 -1.00]*scaleJ
+J1 = [-1.00 0.00 0.00; 0.00 -1.00 0.00; 0.00 0.00 -1.00]*scaleJ
 J2 = [0.50 0.00 0.00; 0.00 0.50 0.00; 0.00 0.00 0.50]*scaleJ
 J3 = [0.25 0.00 0.00; 0.00 0.25 0.00; 0.00 0.00 0.25]*scaleJ
 
@@ -25,12 +25,11 @@ addInteraction!(uc, b1, b1, J3, (0, 2))
 # superlattice size
 L = (40, 40)
 calcLim = (0, 0, 0) # (0, 0, 0) for no structure factor calculation
-# lattice = Lattice(uc, L, calcLim)
 
 thermalizationSweeps = 50000
 measurementSweeps = 1990 # calcDyn per 100 sweeps
-# temperature = 2 # Kelvin
-# beta = 1/(temperature/11.604)
+
+# define the temperature parameter
 beta = 2
 beta = float(beta) # beta should be float
 
