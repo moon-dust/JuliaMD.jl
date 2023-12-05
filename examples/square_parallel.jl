@@ -20,18 +20,13 @@ scaleJ = 5
 J1 = [-1.00 -0.00 -0.00; -0.00 -1.00 -0.00; -0.00 -0.00 -1.00]*scaleJ
 J2 = [0.50 0.00 0.00; 0.00 0.50 0.00; 0.00 0.00 0.50]*scaleJ
 J3 = [0.25 0.00 0.00; 0.00 0.25 0.00; 0.00 0.00 0.25]*scaleJ
-J4 = 0.0*[1.00 0.00 0.00; 0.00 1.00 0.00; 0.00 0.00 1.00]*scaleJ
 
 addInteraction!(uc, b1, b1, J1, (1, 0)) 
 addInteraction!(uc, b1, b1, J1, (0, 1)) 
-addInteraction!(uc, b1, b1, J2, (1, -1)) 
+addInteraction!(uc, b1, b1, J2, (1,-1)) 
 addInteraction!(uc, b1, b1, J2, (1, 1)) 
 addInteraction!(uc, b1, b1, J3, (2, 0)) 
 addInteraction!(uc, b1, b1, J3, (0, 2)) 
-addInteraction!(uc, b1, b1, J4, (1, -2)) 
-addInteraction!(uc, b1, b1, J4, (2, -1)) 
-addInteraction!(uc, b1, b1, J4, (2, 1)) 
-addInteraction!(uc, b1, b1, J4, (1, 2)) 
 
 # superlattice size
 L = (40, 40)
