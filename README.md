@@ -1,5 +1,5 @@
 # JuliaMD.jl
-JuliaMD.jl implements the Molecular Dynamics (MD) method for classical spin models. It utilizes the classical Monte Carlo code [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl) to find the ground state, then evolves the spin configuration as a function of time using [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl). Finally, the time evolution in real space is transferred to the frequency domain in reciprocal space through [FFTW.jl](https://juliamath.github.io/FFTW.jl/stable/).
+JuliaMD.jl is a Molecular Dynamics (MD) code to calculate the spectral function for classical spin models. It utilizes the classical Monte Carlo code [SpinMC.jl](https://github.com/fbuessen/SpinMC.jl) to find the ground state, then evolves the spin configuration as a function of time using [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl). Finally, the time evolution in real space is transferred to the frequency domain in reciprocal space through [FFTW.jl](https://juliamath.github.io/FFTW.jl/stable/).
 
 ## Installation
 To install JuliaMD.jl, type the following command in the Julia REPL:
