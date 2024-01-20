@@ -233,7 +233,7 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
         str_fac_x = zeros(nBZ[1]*lattice.size[1])*im
         str_fac_y = zeros(nBZ[1]*lattice.size[1])*im
         str_fac_z = zeros(nBZ[1]*lattice.size[1])*im
-        sf2 = zeros(nBZ[1]*lattice.size[1])
+        sf2 = zeros(nBZ[1]*lattice.size[1],3)
 
         a1 = lattice.unitcell.primitive[1]
         b1 = 2π/a1[1]
@@ -261,9 +261,8 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
             str_fac_z = str_fac_z .+ repeat(fftshift(fft(sz_mat)),nBZ[1]).*phase
         end
 
-        sf2 = real(str_fac_x.*conj(str_fac_x) + 
-                str_fac_y.*conj(str_fac_y) + 
-                str_fac_z.*conj(str_fac_z)) 
+         # output xyz components separately
+        sf2 = real(cat(str_fac_x.*conj(str_fac_x), str_fac_y.*conj(str_fac_y), str_fac_z.*conj(str_fac_z),dims=D+1))
     end
 
     if D==2  # 2D lattice
@@ -271,7 +270,7 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
         str_fac_x = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2])*im
         str_fac_y = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2])*im
         str_fac_z = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2])*im
-        sf2 = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2])
+        sf2 = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2],3)
 
         a1 = [lattice.unitcell.primitive[1]..., 0]
         a2 = [lattice.unitcell.primitive[2]..., 0]
@@ -320,9 +319,12 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
             str_fac_z = str_fac_z .+ repeat(fftshift(fft(sz_mat)),nBZ[1],nBZ[2]).*phase
         end
 
-        sf2 = real(str_fac_x.*conj(str_fac_x) + 
-                str_fac_y.*conj(str_fac_y) + 
-                str_fac_z.*conj(str_fac_z)) 
+        # sf2 = real(str_fac_x.*conj(str_fac_x) + 
+        #         str_fac_y.*conj(str_fac_y) + 
+        #         str_fac_z.*conj(str_fac_z)) 
+
+        # output xyz components separately
+        sf2 = real(cat(str_fac_x.*conj(str_fac_x), str_fac_y.*conj(str_fac_y), str_fac_z.*conj(str_fac_z),dims=D+1))
 
 
         # chiral scattering 
@@ -358,7 +360,7 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
         str_fac_x = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2], nBZ[3]*lattice.size[3])*im
         str_fac_y = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2], nBZ[3]*lattice.size[3])*im
         str_fac_z = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2], nBZ[3]*lattice.size[3])*im
-        sf2 = zeros(nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2], nBZ[3]*lattice.size[3])
+        sf2 = zeros(3, nBZ[1]*lattice.size[1], nBZ[2]*lattice.size[2], nBZ[3]*lattice.size[3])
 
         # a1 = [lattice.unitcell.primitive[1]...]
         # a2 = [lattice.unitcell.primitive[2]...]
@@ -412,11 +414,14 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
             str_fac_z = str_fac_z .+ repeat(fftshift(fft(sz_mat)),nBZ[1], nBZ[2], nBZ[3]).*lattice.phase[:,:,:,ind]
         end
 
-        sf2 = real(str_fac_x.*conj(str_fac_x) + 
-                   str_fac_y.*conj(str_fac_y) + 
-                   str_fac_z.*conj(str_fac_z)) 
+        # sf2 = real(str_fac_x.*conj(str_fac_x) + 
+        #            str_fac_y.*conj(str_fac_y) + 
+        #            str_fac_z.*conj(str_fac_z)) 
 
+        # output xyz components separately
+        sf2 = real(cat(str_fac_x.*conj(str_fac_x), str_fac_y.*conj(str_fac_y), str_fac_z.*conj(str_fac_z),dims=D+1))
         
+ 
 #=   chiral scattring
         # unit vectors along Q as defined in the lab system
         Q_len = [norm([qh*b1[1]+qk*b2[1]+ql*b3[1], qh*b1[2]+qk*b2[2]+ql*b3[2], qh*b1[3]+qk*b2[3]+ql*b3[3]]) 
@@ -455,11 +460,11 @@ function getFourier(lattice::Lattice{D,N}) where {D,N}
 =#
 
     end
-    if ndims(sf2)==3
+    if ndims(sf2)==4
         return sf2
         # return sf_chiral
     else # for 2D and 1D lattices
-        return repeat(sf2, 1,1,1)
+        return repeat(sf2, 1,1,1,1)
         # return repeat(sf_chiral, 1,1,1)
     end
 

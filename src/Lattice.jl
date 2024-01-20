@@ -33,6 +33,9 @@ mutable struct Lattice{D,N}
     interactionMatrices::Vector{NTuple{N,InteractionMatrix}} #list of length N_sites, for every site contains all interaction matrices
     interactionOnsite::Vector{InteractionMatrix} #list of length N_sites, for every site contains the local onsite interaction matrix
     interactionField::Vector{NTuple{3,Float64}} #list of length N_sites, for every site contains the local field
+    interactionVectors::Vector{NTuple{N,Vector{Float64}}} # bonding vectors correponding to interactionSites
+    interactionUnitVectors::Vector{NTuple{N,Vector{Float64}}} # bonding vectors correponding to interactionSites, unitary
+
     Lattice(D,N) = new{D,N}()
 end
 
@@ -168,6 +171,8 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}, calcLim::NTuple{3,Int}, parm
     lattice.interactionMatrices = repeat([ NTuple{Ninteractions,InteractionMatrix}(repeat([InteractionMatrix()],Ninteractions)) ], lattice.length)
     lattice.interactionOnsite = repeat([InteractionMatrix()], lattice.length)
     lattice.interactionField = repeat([(0.0,0.0,0.0)], lattice.length)
+    lattice.interactionVectors = repeat([ NTuple{Ninteractions, Vector{Float64}}(repeat([zeros(Float64,3)], Ninteractions)) ], lattice.length)
+    lattice.interactionUnitVectors = repeat([ NTuple{Ninteractions, Vector{Float64}}(repeat([zeros(Float64,3)], Ninteractions)) ], lattice.length)
 
     function applyPBC(n, L)
         while n < 0; n += L end
@@ -191,6 +196,9 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}, calcLim::NTuple{3,Int}, parm
         #two-spin interactions
         interactionSites = repeat([i], Ninteractions)
         interactionMatrices = repeat([InteractionMatrix()], Ninteractions)
+        interactionVectors = repeat([Float64.([0,0,0])], Ninteractions)
+        interactionUnitVectors = repeat([Float64.([0,0,0])], Ninteractions)
+
         for j in 1:Ninteractions
             if j <= length(interactionTargetSites[b])
                 b2, offset, M = interactionTargetSites[b][j]
@@ -200,10 +208,28 @@ function Lattice(uc::UnitCell{D}, L::NTuple{D,Int}, calcLim::NTuple{3,Int}, parm
 
                 interactionSites[j] = siteIndexFromParametrization(targetSite) # idx of the TargetSite
                 interactionMatrices[j] = InteractionMatrix(M)
+                # generate the r-vectors
+                ri = lattice.sitePositions[i]
+                rj = lattice.sitePositions[interactionSites[j]]
+                dij = ri .- rj
+                dij_cell = Vector{Float64}(undef, 3)
+                # correct the boundary sites
+                for idx = 1:3
+                    if abs(dij[idx]) > uc.primitive[1][1]
+                        dij_cell[idx] = sign(dij[idx]) * -1 * uc.primitive[1][1]/4
+                    else
+                        dij_cell[idx] = dij[idx]
+                    end
+                end
+                interactionVectors[j] = dij_cell
+                dij_norm = sqrt(dij_cell[1]^2 + dij_cell[2]^2 + dij_cell[3]^2)
+                interactionUnitVectors[j] = [dij_cell[1]/dij_norm, dij_cell[2]/dij_norm, dij_cell[3]/dij_norm]
             end
         end
         lattice.interactionSites[i] = NTuple{Ninteractions,Int}(interactionSites)
         lattice.interactionMatrices[i] = NTuple{Ninteractions,InteractionMatrix}(interactionMatrices)
+        lattice.interactionVectors[i] = NTuple{Ninteractions, Vector{Float64}}(interactionVectors)
+        lattice.interactionUnitVectors[i] = NTuple{Ninteractions, Vector{Float64}}(interactionUnitVectors)
     end
 
     #return lattice
@@ -254,4 +280,8 @@ end
 
 function getInteractionField(lattice::Lattice{D,N}, site::Int)::NTuple{3,Float64} where {D,N}
     return lattice.interactionField[site]
+end
+
+function getInteractionUnitVectors(lattice::Lattice{D,N}, site::Int, idx::Int)::NTuple{3,Float64} where {D,N}
+    return (lattice.interactionUnitVectors[site][idx][1], lattice.interactionUnitVectors[site][idx][2], lattice.interactionUnitVectors[site][idx][3])
 end

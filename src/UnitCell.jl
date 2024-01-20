@@ -1,5 +1,6 @@
 struct UnitCell{D}
     primitive::NTuple{D,NTuple{D,Float64}}
+    rl::Matrix{Float64}
     basis::Vector{NTuple{D,Float64}}
     interactions::Vector{Tuple{Int,Int,NTuple{D,Int},Matrix{Float64}}} #interactions specified as (basis1,basis2,offsetPrimitive,M)
     interactionsOnsite::Vector{Matrix{Float64}}
@@ -7,7 +8,12 @@ struct UnitCell{D}
 
     UnitCell(a1::NTuple{1,Float64}) = new{1}((a1,), Vector{NTuple{1,Float64}}(undef,0), Vector{Tuple{Int,Int,NTuple{1,Int},Matrix{Float64}}}(undef,0), Vector{Matrix{Float64}}(undef,0), Vector{Vector{Float64}}(undef,0))
     UnitCell(a1::NTuple{2,Float64}, a2::NTuple{2,Float64}) = new{2}((a1,a2), Vector{NTuple{2,Float64}}(undef,0), Vector{Tuple{Int,Int,NTuple{2,Int},Matrix{Float64}}}(undef,0), Vector{Matrix{Float64}}(undef,0), Vector{Vector{Float64}}(undef,0))
-    UnitCell(a1::NTuple{3,Float64}, a2::NTuple{3,Float64}, a3::NTuple{3,Float64}) = new{3}((a1,a2,a3), Vector{NTuple{3,Float64}}(undef,0), Vector{Tuple{Int,Int,NTuple{3,Int},Matrix{Float64}}}(undef,0), Vector{Matrix{Float64}}(undef,0), Vector{Vector{Float64}}(undef,0))
+    UnitCell(a1::NTuple{3,Float64}, a2::NTuple{3,Float64}, a3::NTuple{3,Float64}) = new{3}((a1,a2,a3), 
+                                                                                           2*pi*inv([[a1...] [a2...] [a3...]]),     
+                                                                                           Vector{NTuple{3,Float64}}(undef,0), 
+                                                                                           Vector{Tuple{Int,Int,NTuple{3,Int},Matrix{Float64}}}(undef,0), 
+                                                                                           Vector{Matrix{Float64}}(undef,0), 
+                                                                                           Vector{Vector{Float64}}(undef,0))
     UnitCell(primitives...) = new{length(primitives)}(primitives, Vector{NTuple{length(primitives),Float64}}(undef,0), Vector{Tuple{Int,Int,NTuple{length(primitives),Int},Matrix{Float64}}}(undef,0), Vector{Matrix{Float64}}(undef,0), Vector{Vector{Float64}}(undef,0))
 end
 

@@ -113,7 +113,7 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
 
     while mc.sweep < totalSweeps
         
-        # perform overrelaxation
+        # perform overrelaxation as per sweep
         if mc.overrelaxationTimes != 0
             for idx_or = 1:mc.overrelaxationTimes
                 for site in 1:mc.lattice.length
@@ -147,16 +147,25 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
                     end
 
                     # # flip the orthogonal spin components for isotropic spins
-                    coef_SH = mc.lattice.spins[1,site]*field[1] + mc.lattice.spins[2,site]*field[2] + mc.lattice.spins[3,site]*field[3]
+                    coef_SH = getSpin(mc.lattice,site)[1]*field[1] + getSpin(mc.lattice,site)[2]*field[2] + getSpin(mc.lattice,site)[3]*field[3]
                     field_norm2 = field[1]^2 + field[2]^2 + field[3]^2
                     spin_or3D::Vector{Float64} = zeros(3)
-                    spin_or3D[1] = -mc.lattice.spins[1,site] + 2*coef_SH/field_norm2*field[1]
-                    spin_or3D[2] = -mc.lattice.spins[2,site] + 2*coef_SH/field_norm2*field[2]
-                    spin_or3D[3] = -mc.lattice.spins[3,site] + 2*coef_SH/field_norm2*field[3]
+                    if field_norm2 != 0
+                        spin_or3D[1] = -getSpin(mc.lattice,site)[1] + 2*coef_SH/field_norm2*field[1]
+                    spin_or3D[2] = -getSpin(mc.lattice,site)[2] + 2*coef_SH/field_norm2*field[2]
+                    spin_or3D[3] = -getSpin(mc.lattice,site)[3] + 2*coef_SH/field_norm2*field[3]
 
-                    mc.lattice.spins[1,site] = spin_or3D[1]
-                    mc.lattice.spins[2,site] = spin_or3D[2]
-                    mc.lattice.spins[3,site] = spin_or3D[3]
+                    newSpinState = (spin_or3D[1], spin_or3D[2], spin_or3D[3])
+                    else
+                        newSpinState = -1 .* getSpin(mc.lattice, site)
+                    end
+                    energyDifference = getEnergyDifference(mc.lattice, site, newSpinState)
+                    
+                    p = exp(-mc.beta * energyDifference)
+                    if (rand(mc.rng) < min(1.0, p))
+                        setSpin!(mc.lattice, site, newSpinState)
+                        energy += energyDifference
+                    end
                     
                     # # flip the in-plane components for spins with easy axis along c
                     # coef_SH = mc.lattice.spins[1,site]*field[1] + mc.lattice.spins[2,site]*field[2]
@@ -196,9 +205,57 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
             if (rand(mc.rng) < min(1.0, p))
                 setSpin!(mc.lattice, site, newSpinState)
                 energy += energyDifference
+                # energy = getEnergy(mc.lattice)
                 statistics.acceptedLocalUpdates += 1
             end
+        
+            #= overrelaxation for single spin
+            if mc.overrelaxationTimes != 0
+                interactionSites = mc.lattice.interactionSites[site]
+                interactionMatrices = mc.lattice.interactionMatrices[site]
+
+                field = [mc.lattice.interactionField[site]...] # with applied field
+                for i in 1:length(interactionSites)
+                    fieldx = (mc.lattice.spins[1, interactionSites[i]]*interactionMatrices[i].m11
+                            + mc.lattice.spins[2, interactionSites[i]]*interactionMatrices[i].m21
+                            + mc.lattice.spins[3, interactionSites[i]]*interactionMatrices[i].m31)
+
+                    fieldy = (mc.lattice.spins[1, interactionSites[i]]*interactionMatrices[i].m12
+                            + mc.lattice.spins[2, interactionSites[i]]*interactionMatrices[i].m22
+                            + mc.lattice.spins[3, interactionSites[i]]*interactionMatrices[i].m32)
+
+                    fieldz = (mc.lattice.spins[1, interactionSites[i]]*interactionMatrices[i].m13
+                            + mc.lattice.spins[2, interactionSites[i]]*interactionMatrices[i].m23
+                            + mc.lattice.spins[3, interactionSites[i]]*interactionMatrices[i].m33)
+
+                    field[1] += fieldx
+                    field[2] += fieldy
+                    field[3] += fieldz
+                end
+
+                # flip the orthogonal spin components for isotropic spins
+                coef_SH = mc.lattice.spins[1,site]*field[1] + mc.lattice.spins[2,site]*field[2] + mc.lattice.spins[3,site]*field[3]
+                field_norm2 = field[1]^2 + field[2]^2 + field[3]^2
+                spin_or3D::Vector{Float64} = zeros(3)
+                if field_norm2 != 0
+                    spin_or3D[1] = -mc.lattice.spins[1,site] + 2*coef_SH/field_norm2*field[1]
+                    spin_or3D[2] = -mc.lattice.spins[2,site] + 2*coef_SH/field_norm2*field[2]
+                    spin_or3D[3] = -mc.lattice.spins[3,site] + 2*coef_SH/field_norm2*field[3]
+                    newSpinState = (spin_or3D[1], spin_or3D[2], spin_or3D[3])
+                else
+                    newSpinState = -1 .* getSpin(mc.lattice, site)
+                end
+                energyDifference = getEnergyDifference(mc.lattice, site, newSpinState)
+
+                p = exp(-mc.beta * energyDifference)
+                if (rand(mc.rng) < min(1.0, p))
+                    setSpin!(mc.lattice, site, newSpinState)
+                    energy += energyDifference
+                end
+            end
+            =#
         end
+
         statistics.sweeps += 1
 
         #perform replica exchange
@@ -232,6 +289,7 @@ function run!(mc::MonteCarlo{T}; outfile::Union{String,Nothing}=nothing) where T
                 end
             end
         end
+
 
         #perform measurement
         if mc.sweep >= mc.thermalizationSweeps
