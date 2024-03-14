@@ -600,7 +600,10 @@ function getDynamics(lattice::Lattice{D,N}) where {D,N}
         b1 = 2π/vol*cross(a2,a3)
         b2 = 2π/vol*cross(a3,a1)
 
-        Sx_fourier = Sy_fourier = Sz_fourier = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*im
+        Sx_fourier = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*im
+        Sy_fourier = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*im
+        Sz_fourier = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*im
+
         natom = size(lattice.unitcell.basis,1)
         for idx_atom = 1:natom
             # phase factor for each sublattice
@@ -622,7 +625,17 @@ function getDynamics(lattice::Lattice{D,N}) where {D,N}
             Sz_fourier = Sz_fourier + repeat(fftshift(fft(Sz_mesh)), dBZ[1], dBZ[2]).*phase
         end
 
-        Sxx = Sxy = Sxz = Syx = Syy = Syz = Szx = Szy = Szz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Sxx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Sxy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Sxz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+
+        Syx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Syy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Syz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+
+        Szx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Szy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
+        Szz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], nstep)*(0+0im)
 
         Sxx += Sx_fourier.*conj(Sx_fourier)
         Sxy += Sx_fourier.*conj(Sy_fourier)
@@ -684,7 +697,10 @@ function getDynamics(lattice::Lattice{D,N}) where {D,N}
         b2 = 2π/vol*cross(a3,a1)
         b3 = 2π/vol*cross(a1,a2)
 
-        Sx_fourier::Array{ComplexF64} = Sy_fourier::Array{ComplexF64} = Sz_fourier::Array{ComplexF64} = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*im
+        Sx_fourier::Array{ComplexF64} = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*im
+        Sy_fourier::Array{ComplexF64} = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*im
+        Sz_fourier::Array{ComplexF64} = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*im
+
         natom = size(lattice.unitcell.basis,1)
         for idx_atom = 1:natom
             # phase factor for each sublattice
@@ -707,7 +723,17 @@ function getDynamics(lattice::Lattice{D,N}) where {D,N}
             Sz_fourier += repeat(fftshift(fft(Sz_mesh)), dBZ[1],dBZ[2],dBZ[3]).*phase
         end
 
-        Sxx = Sxy = Sxz = Syx = Syy = Syz = Szx = Szy = Szz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Sxx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Sxy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Sxz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+
+        Syx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Syy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Syz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+
+        Szx = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Szy = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
+        Szz = zeros(dBZ[1]*L[1], dBZ[2]*L[2], dBZ[3]*L[3], nstep)*(0+0im)
 
         Sxx += Sx_fourier.*conj(Sx_fourier)
         Sxy += Sx_fourier.*conj(Sy_fourier)
